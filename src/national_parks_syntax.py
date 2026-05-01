@@ -2,19 +2,16 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-#Load the data
+#Create folders
 from pathlib import Path
-file_path = Path(__file__).parent / "observations.csv"
-obs = pd.read_csv(file_path)
-file_path = Path(__file__).parent / "species_info.csv"
-info = pd.read_csv(file_path)
+base_dir = Path(__file__).resolve().parent.parent
+raw_data_dir = base_dir / "data" / "raw"
+cleaned_data_dir = base_dir / "data" / "cleaned"
+images_dir = base_dir / "images"
 
-#Create file to save charts
-images_dir = Path(__file__).parent / "images"
-images_dir.mkdir(exist_ok=True)
-
-cleaned_data_dir = Path(__file__).parent / "cleaned_data"
-cleaned_data_dir.mkdir(exist_ok=True)
+#Load the data
+obs = pd.read_csv(raw_data_dir / "observations.csv")
+info = pd.read_csv(raw_data_dir / "species_info.csv")
 
 #DATA CLEANING
 #Are the species with nan for conservation status not endangered, or is that data missing?
@@ -57,7 +54,7 @@ info_clean = info_clean[
 #print(info_clean[info_clean['scientific_name'].isin(['Canis lupus', 'Oncorhynchus mykiss'])])
 #Check no conflicting records remain
 #print(info_clean.groupby('scientific_name')['conservation_status'].nunique().value_counts())
-#Now, any duplicates fully match across all fields, so remove them
+#Now, any duplicates fully match across all fields, so remove themd
 info_clean = info_clean.drop_duplicates(subset=['scientific_name'])
 #Check no duplicates remain
 #print(info_clean['scientific_name'].value_counts().max())
@@ -96,25 +93,21 @@ obs_clean['observations'] = obs_clean['observations'].round(0).astype(int)
 
 #SAVE AND MERGE CLEANED DATA SETS
 #Save cleaned
-info_clean.to_csv(
-    Path(__file__).parent / "cleaned data" / "info_clean.csv",
-    index=False)
-obs_clean.to_csv(
-    Path(__file__).parent / "cleaned data" / "obs_clean.csv",
-    index=False)
+info_clean.to_csv(cleaned_data_dir / "info_clean.csv", index=False)
+obs_clean.to_csv(cleaned_data_dir / "obs_clean.csv", index=False)
 #Merge
+# Merge
 merged = obs_clean.merge(
     info_clean,
     on='scientific_name',
     how='left')
+merged.to_csv(cleaned_data_dir / "cleaned_biodiversity_data.csv", index=False)
 #Check
 #print(merged.columns)
 #print(merged.shape)
 #print(merged.isna().sum())
 #print(len(obs_clean))
 #print(len(merged))
-#Save merged file
-merged.to_csv(Path(__file__).parent / "cleaned data" / "cleaned_biodiversity_data.csv", index=False)
 
 #Many of the species didn't have conservation status--does that mean they are not at risk, or is this missing data?
 #print(merged['conservation_status'].value_counts(normalize=True))
