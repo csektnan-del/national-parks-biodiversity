@@ -38,7 +38,7 @@ Across the four parks in the dataset, is there variance in the number or ratio o
 
 
 
-## Do Protection Levels Vary by Category?*
+## Do Protection Levels Vary by Category?
 Are mammals, fish, vascular plants, etc., more likely to be protected than other categories?
 
 ## Vascular plants are by far the most observed species in the data
